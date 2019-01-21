@@ -2,8 +2,6 @@ const express = require('express')
 const fetch = require('node-fetch')
 const router = express.Router()
 
-/* GET home page. */
-
 const getData = async (url, options) => {
   try {
     const response = await fetch(url, options)
@@ -15,7 +13,7 @@ const getData = async (url, options) => {
   }
 }
 
-router.get('/api/pulls', async (req, res, next) => {
+router.post('/api/pulls', async (req, res, next) => {
   const url = req.body.repository_url
   const owner = url.split('/')[3]
   const project = url.split('/')[4]
