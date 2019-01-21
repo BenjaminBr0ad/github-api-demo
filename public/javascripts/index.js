@@ -17,7 +17,7 @@ $(document).ready(() => {
     const data = {
       repository_url: $('#url').val()
     }
-    fetch('http://localhost:3000/api/pulls', {
+    fetch('https://github-api-demo-bbroad.herokuapp.com/api/pulls', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
