@@ -5,9 +5,10 @@ const { getData } = require('../controller/index')
 const { checkUrl, formatUrl, formatResponse } = require('../utilities')
 
 router.post('/api/pulls', async (req, res, next) => {
-  const url = formatUrl(req.body.repository_url)
 
-  if (checkUrl(url.url)) {
+  if (checkUrl(req.body.repository_url)) {
+
+    const url = formatUrl(req.body.repository_url)
     const pulls = await getData(`https://api.github.com/repos/${url.owner}/${url.project}/pulls`)
 
     const response = await Promise.all(pulls.map(async pull => {
