@@ -1,43 +1,30 @@
 const express = require('express')
-const fetch = require('node-fetch')
-const router = express.Router()
 
-const getData = async (url, options) => {
-  try {
-    const response = await fetch(url, options)
-    const json = await response.json()
-    return json
-  }
-  catch (error) {
-    console.log('getData() error: ', error);
-  }
-}
+const router = express.Router()
+const { getData } = require('../controller/index')
+const { checkUrl, formatUrl, formatResponse } = require('../utilities')
 
 router.post('/api/pulls', async (req, res, next) => {
-  const url = req.body.repository_url
-  const owner = url.split('/')[3]
-  const project = url.split('/')[4]
-  const options = {
-    method: 'GET',
-    headers: {
-      'User-Agent': 'BenjaminBr0ad',
-      'Accept': 'application/vnd.github.v3+json'
-    }
+  const url = formatUrl(req.body.repository_url)
+
+  if (checkUrl(url.url)) {
+    const pulls = await getData(`https://api.github.com/repos/${url.owner}/${url.project}/pulls`)
+
+    const response = await Promise.all(pulls.map(async pull => {
+      const data = await Promise.all([getData(pull.commits_url), getData(pull.comments_url)])
+      return formatResponse(pull, data)
+    }))
+
+    res.status(200).json(response)
   }
-  const pulls = await getData(`https://api.github.com/repos/${owner}/${project}/pulls`, options)
-  let newMap = pulls.map(async pull => {
-    let obj = {}
-    const promises = [getData(pull.commits_url), getData(pull.comments_url)]
-    const data = await Promise.all(promises)
-    obj.title = pull.title
-    obj.author = pull.user.login
-    obj.commits = data[0]
-    obj.comments = data[1]
-    return obj
-  })
-  let final = await Promise.all(newMap)
-  console.log(final);
-  res.status(200).json(final)
+  else {
+
+    next({
+      status: 400,
+      message: 'Must be valid GitHub URL.'
+    })
+  }
+
 })
 
 module.exports = router
