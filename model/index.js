@@ -1,13 +1,6 @@
 const fetch = require('node-fetch')
 
-const getData = async (url) => {
-  const options = {
-    method: 'GET',
-    headers: {
-      'User-Agent': 'BenjaminBr0ad',
-      'Accept': 'application/vnd.github.v3+json'
-    }
-  }
+const getData = async (url, options) => {
   try {
     const response = await fetch(url, options)
     const json = await response.json()
