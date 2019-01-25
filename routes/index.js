@@ -10,12 +10,25 @@ router.post('/api/pulls', async (req, res, next) => {
     const url = formatUrl(req.body.repository_url)
     const pulls = await getData(`https://api.github.com/repos/${url.owner}/${url.project}/pulls`)
 
-    const response = await Promise.all(pulls.map(async pull => {
-      const data = await Promise.all([getData(pull.commits_url), getData(pull.comments_url)])
-      return formatResponse(pull, data)
-    }))
+    if (pulls.length > 0) {
 
-    res.status(200).json(response)
+      const response = await Promise.all(pulls.map(async pull => {
+        const data = await Promise.all([getData(pull.commits_url), getData(pull.comments_url)])
+        return formatResponse(pull, data)
+      }))
+
+      res.status(200).json(response)
+
+    }
+    else {
+
+      next({
+        status: 200,
+        message: 'This repository has no open pull requests.'
+      })
+
+    }
+    
   }
   else {
 
