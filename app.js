@@ -19,6 +19,10 @@ app.use(express.static(path.join(__dirname, 'client/build')))
 
 app.use('/', indexRouter)
 
+app.get('/*', function (req, res) {
+  res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+});
+
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500)
